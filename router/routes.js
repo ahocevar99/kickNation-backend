@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { User } from "../models/UserModel.js";
 import { Player } from "../models/PlayerModel.js";
-import bcrypt from "bcrypt";
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken'
 import asyncHandler from 'express-async-handler'
 import fetch from 'node-fetch';
