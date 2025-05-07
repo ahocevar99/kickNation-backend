@@ -37,7 +37,7 @@ router.post("/login", (req, res) => {
       if (user) {
         bcrypt.compare(password, user.password, (err, response) => {
           if (err) {
-            res.json("Wrong username or password");
+            res.json({message:"Wrong username or password"});
           } else if (response) {
             const token = jwt.sign ({
                 username: user.username
@@ -46,11 +46,11 @@ router.post("/login", (req, res) => {
             req.user = user;
             res.status(202).header('Authorization', `Bearer ${token}`).json({ message: "Successful login", user: { username: user.username, clubName: user.clubName } });
           } else {
-            res.json("Wrong username or password");
+            res.json({message:"Wrong username or password"});
           }
         });
       } else {
-        res.json("Wrong username or password");
+        res.json({message:"Wrong username or password"});
       }
     });
   });
@@ -58,19 +58,19 @@ router.post("/login", (req, res) => {
 router.post("/register", async (req, res) => {
   try {
     if (!req.body.username || !req.body.password || !req.body.clubName) {
-      return res.status(400).send("Input all fields");
+      return res.status(400).json({message:"Input all fields"});
     }
     if (
       req.body.username.length < 6 ||
       req.body.password.length < 6 ||
       req.body.clubName.length < 6
     ) {
-      return res.send("Minimal lentgh of all inputs is 6");
+      return res.json({message:"Minimal lentgh of all inputs is 6"});
     }
     const existingUser = await User.findOne({ username: req.body.username });
 
     if (existingUser) {
-      return res.send('Username already exists');
+      return res.json({message: 'Username already exists'});
     }
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     
