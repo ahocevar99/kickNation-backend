@@ -31,7 +31,7 @@ app.set("views", path.join(__dirname, "hbs", "views"));
 app.set("view engine", "hbs");
 app.use(express.json())
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://kicknation-backend-5.onrender.com'],
+    origin: ['http://localhost:5173', 'https://kicknation-backend-5.onrender.com', 'https://kicknation-frontend2.onrender.com/'],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     exposedHeaders: 'Authorization',
