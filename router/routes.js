@@ -15,6 +15,7 @@ const sendLog = async (message, severity) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Origin": "https://kicknation-frontend2.onrender.com"
       },
       body: JSON.stringify({
         apiKey: "6c64ae497f4655d53e10b7f4eb710fa4",
@@ -22,8 +23,11 @@ const sendLog = async (message, severity) => {
         severity_level: severity,
       }),
     });
-
+    if (!res.ok) {
+      throw new Error(`Server error: ${res.status}`);
+    }
     const data = await res.json();
+    console.log(data)
   } catch (error) {
     console.error("Failed to send log:", error.message);
   }
