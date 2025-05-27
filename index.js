@@ -33,6 +33,7 @@ app.use(express.json())
 app.use(cors({
     origin: [
         'http://localhost:5173',
+        'http://localhost:5174',
         'https://kicknation-backend-5.onrender.com',
         'https://kicknation-frontend2.onrender.com'
     ],

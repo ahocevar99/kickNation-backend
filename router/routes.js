@@ -11,17 +11,19 @@ export const router = Router();
 
 const sendLog = async (message, severity) => {
   try {
-    await fetch(`https://loggerapp-backend.onrender.com/api/log`, {
+    const res = await fetch(`https://loggerapp-backend.onrender.com/api/log`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        apiKey:"6884b74e22f5b92831b15ff0ae88d75d",
+        apiKey: "6884b74e22f5b92831b15ff0ae88d75d",
         message: message,
         severity_level: severity,
       }),
     });
+
+    const data = await res.json();
   } catch (error) {
     console.error("Failed to send log:", error.message);
   }
@@ -66,7 +68,6 @@ router.post("/login", async (req, res) => {
     }
     const token = jwt.sign({ username: user.username }, 'verySecretKey', { expiresIn: '2h' });
     req.user = user;
-    await sendLog(`User ${username} logged in successfully`, "info");
     res.status(202).header('Authorization', `Bearer ${token}`).json({
       message: "Successful login",
       user: { username: user.username, clubName: user.clubName }
@@ -133,7 +134,6 @@ router.post("/register", async (req, res) => {
     const user = await User.create(newUser);
 
     if (user) {
-      await sendLog(`User ${username} registered successfully`, "info");
       return res.status(201).json({ message: "Successful signup" });
     } else {
       await sendLog(`Registration failed: Could not save user ${username}`, "err");
@@ -160,7 +160,6 @@ router.get("/myTeam", async (req, res) => {
       return res.status(404).json({ message: "User's squad not found" });
     }
 
-    await sendLog(`myTeam requested for user ${username}`, "info");
     res.status(200).json({ squad: currentUser.squad });
   } catch (error) {
     console.error(error);
@@ -177,7 +176,6 @@ router.get("/profile", async (req, res) => {
       return res.status(404).json({ message: "User's data not found" });
     }
 
-    await sendLog(`Profile data sent for user ${currentUser.username}`, "info");
     res.status(200).json({ data: currentUser });
   } catch (error) {
     console.error(error);
@@ -215,8 +213,6 @@ router.get("/buyPack", async (req, res) => {
       { playerName: names[0].playerName, country: names[0].country, countryCode: names[0].countryCode, rating: names[0].rating, position: names[0].position },
       { playerName: names[1].playerName, country: names[1].country, countryCode: names[1].countryCode, rating: names[1].rating, position: names[1].position }
     ];
-
-    await sendLog(`User ${username} bought a pack successfully`, "info");
     res.status(200).json({ squad });
   } catch (error) {
     console.error(error);
@@ -243,7 +239,6 @@ router.get('/getData', async (req, res) => {
 
     const [nationBonus, nations] = functions.calculateNationBonus(currentUser.squad);
 
-    await sendLog(`getData successful for user ${username}`, "info");
 
     res.status(200).json({
       clubName: currentUser.clubName,
@@ -280,7 +275,6 @@ router.get('/calculateBonusesWhenReplacing', async (req, res) => {
       }
     }
 
-    await sendLog(`calculateBonusesWhenReplacing successful for user ${username}`, "info");
 
     res.status(200).json({
       nationBonus: functions.calculateNationBonus(currentUserSquad),
@@ -296,11 +290,17 @@ router.get('/calculateBonusesWhenReplacing', async (req, res) => {
 
 router.put('/replacePlayer', async (req, res) => {
   try {
-    const { username, oldPlayer, newPlayer } = req.body;
-
-    if (!username || !oldPlayer || !newPlayer) {
+    const { username, oldPlayerName, newPlayerName, newPlayerRating, newPlayerCountry, newPlayerCountryCode, newPlayerPosition } = req.body;
+    if (!username || !oldPlayerName || !newPlayerName || !newPlayerRating || !newPlayerCountry || !newPlayerCountryCode || !newPlayerPosition) {
       await sendLog(`replacePlayer failed: Missing required fields`, "warning");
       return res.status(400).json({ message: "Missing required fields" });
+    }
+    const newPlayer = {
+      playerName: newPlayerName,
+      country: newPlayerCountry,
+      countryCode: newPlayerCountryCode,
+      rating: newPlayerRating,
+      position: newPlayerPosition
     }
 
     const user = await User.findOne({ username });
@@ -308,10 +308,9 @@ router.put('/replacePlayer', async (req, res) => {
       await sendLog(`replacePlayer failed: User ${username} not found`, "notice");
       return res.status(404).json({ message: "User not found" });
     }
-
     const squad = user.squad;
 
-    const index = squad.findIndex(p => p._id.toString() === oldPlayer);
+    const index = squad.findIndex(p => p.playerName.toString() === oldPlayerName);
     if (index === -1) {
       await sendLog(`replacePlayer failed: Old player not found in squad for user ${username}`, "notice");
       return res.status(404).json({ message: "Old player not found in squad" });
@@ -321,7 +320,6 @@ router.put('/replacePlayer', async (req, res) => {
     user.squad = squad;
     await user.save();
 
-    await sendLog(`Player replaced successfully for user ${username}`, "info");
 
     res.status(200).json({ message: "Successful replacement" });
   } catch (error) {
