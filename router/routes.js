@@ -15,7 +15,6 @@ const sendLog = async (message, severity) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Origin": "https://kicknation-backend-5.onrender.com"
       },
       body: JSON.stringify({
         apiKey: "6c64ae497f4655d53e10b7f4eb710fa4",
