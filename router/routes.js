@@ -17,7 +17,7 @@ const sendLog = async (message, severity) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        apiKey: "6884b74e22f5b92831b15ff0ae88d75d",
+        apiKey: "6c64ae497f4655d53e10b7f4eb710fa4",
         message: message,
         severity_level: severity,
       }),
@@ -72,6 +72,7 @@ router.post("/login", async (req, res) => {
       message: "Successful login",
       user: { username: user.username, clubName: user.clubName }
     });
+    sendLog(`User ${username} Logged In successfully`, "info")
   } catch (error) {
     console.error(error);
     await sendLog(`Login error for username ${username}: ${error.message}`, "err");
