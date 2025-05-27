@@ -76,7 +76,7 @@ router.post("/login", async (req, res) => {
       message: "Successful login",
       user: { username: user.username, clubName: user.clubName }
     });
-    sendLog(`User ${username} Logged In successfully`, "info")
+    await sendLog(`User ${username} Logged In successfully`, "info")
   } catch (error) {
     console.error(error);
     await sendLog(`Login error for username ${username}: ${error.message}`, "err");
